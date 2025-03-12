@@ -1,8 +1,12 @@
 "use client";
 import { redirect } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import PaymentWithPaystack from "./PaymentWithPaystack";
+import dynamic from "next/dynamic";
+
+const PaystackDynamic = dynamic(() => import("./PaymentWithPaystack"), {
+  ssr: false,
+});
 
 const CheckOutForm = () => {
   const { totalCost } = useSelector((state) => state.cart);
@@ -12,10 +16,11 @@ const CheckOutForm = () => {
     address: "",
   });
 
-  if (totalCost <= 0) {
-    return redirect("/marketplace");
-  }
-
+  useEffect(() => {
+    if (totalCost <= 0) {
+      return redirect("/marketplace");
+    }
+  }, []);
   return (
     <form className="my-20 p-4 shadow-md rounded-lg max-w-2xl mx-auto grid gap-4">
       <h2 className="text-amber-800 text-xl font-semibold text-center">
@@ -52,7 +57,7 @@ const CheckOutForm = () => {
         className="p-2 w-full border border-amber-500 rounded-md focus:outline focus:outline-amber-800"
       />
 
-      <PaymentWithPaystack customerDetails={customerDetails} />
+      <PaystackDynamic customerDetails={customerDetails} />
     </form>
   );
 };
